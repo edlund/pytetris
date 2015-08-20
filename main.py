@@ -1,7 +1,7 @@
 import game
 
 def main():
-	g = game.Game((400, 400))
+	g = game.Game((600, 800))
 	g.run()
 
 if __name__ == "__main__":

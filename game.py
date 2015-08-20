@@ -1,15 +1,25 @@
 import pygame
+import geometry
+import graphics
 
 class Game:
+	FILL_COLOR = (100, 0, 0)
+
 	def __init__(self, size):
 		pygame.init()
 
 		pygame.display.init()
-		self.surface = pygame.display.set_mode(size)
+		self.screen_surf = pygame.display.set_mode(size)
 
 		self.clock = pygame.time.Clock()
-		self.x = 10
 
+		self.playfield = geometry.Grid(10, 20)
+		# TODO: load from config
+		self.block_size = 32
+		self.field_pos = (50, 50)
+
+		self.grid_renderer = graphics.GridRenderer(self.block_size)
+		self.grid_surface = pygame.Surface((10*self.block_size, 20*self.block_size))
 
 	def run(self):
 		print("Running")
@@ -22,12 +32,15 @@ class Game:
 		quit()
 
 	def tick(self):
-		self.x += 1
 		pass
 
 	def draw(self):
-		self.surface.fill((0, 0, 0))
-		pygame.draw.rect(self.surface, (0, 255, 0), (self.x, 0, 10, 10))
+		self.screen_surf.fill(self.FILL_COLOR)
+		self.grid_surface.fill((0, 0, 0, 0))
+
+		self.grid_renderer.draw(self.grid_surface, self.playfield)
+		self.screen_surf.blit(self.grid_surface, self.field_pos)
+
 		pygame.display.update()
 
 	def quit(self):

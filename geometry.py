@@ -12,10 +12,49 @@ def _swap(l, i, j):
 	# Helper to make list swaps less verbose.
 	l[i], l[j] = l[j], l[i]
 
+def drop(grid, clrs):
+	# Drop blocks after a %clear()-call.
+	for y0 in clrs:
+		for y in xrange(y0, 1, -1):
+			for x in xrange(0, grid.w):
+				_swap(
+					grid.cells,
+					grid.coord_to_index(x, y - 0),
+					grid.coord_to_index(x, y - 1),
+				)
+
+def clear(grid):
+	# Detect and clear lines on the x-plane in the given grid.
+	clrs = []
+	width = grid.w
+	height = grid.h
+	
+	for y in xrange(0, height):
+		blks = []
+		for x in xrange(0, width):
+			b = grid.coord_to_block(x, y)
+			if b.filled():
+				blks.append(b)
+		if len(blks) == width:
+			if y:
+				clrs.append(y)
+			for b in blks:
+				b.clear()
+	return clrs
+
 class Block:
 	
 	HOLLOW = 0
 	FILLED = 1
+	
+	def clear(self):
+		self.uid = 0
+		self.value = 0
+		self.color = '#000000'
+		self.state = Block.HOLLOW
+	
+	def filled(self):
+		return self.state == Block.FILLED
 	
 	def __init__(self, value, color, state):
 		self.uid = 0
@@ -28,7 +67,7 @@ class Grid:
 	def coord_to_index(self, x, y):
 		if x >= self.w or y >= self.h:
 			raise IndexError()
-		return x * y + x
+		return self.w * y + x
 	
 	def coord_to_block(self, x, y):
 		return self.cells[self.coord_to_index(x, y)]
@@ -42,6 +81,9 @@ class Grid:
 		for i in xrange(0, len(blocks)):
 			if blocks[i]:
 				self.cells[i] = Block(blocks[i], color, Block.FILLED)
+	
+	def list_cells(self):
+		return [b.value for b in self.cells]
 	
 	def compare_cells(self, blocks):
 		if len(self.cells) != len(blocks):
@@ -133,7 +175,8 @@ class Shape:
 		self.grids = [Grid(self.side, self.side)
 			for _ in xrange(0, 4)]
 		for g in self.grids:
-			g.assign_cells(Shape._rcw90(desc['blocks'], self.side), str(desc['color']))
+			g.assign_cells(Shape._rcw90(desc['blocks'],
+				self.side), str(desc['color']))
 		self.rindex = 0
 
 class Factory:
@@ -172,6 +215,76 @@ if __name__ == '__main__':
 			j = 2
 			_swap(l, i, j)
 			self.assertEqual("".join(l), "hello world!")
+		
+		def test_drop(self):
+			w = 8
+			h = 10
+			clrs = [3, 6, 7, 8]
+			playfield = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				1, 1, 1, 1, 0, 1, 1, 1,
+				0, 1, 0, 0, 1, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 1, 0, 1, 1, 0, 1, 1
+			]
+			expected = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 1, 0, 0,
+				1, 1, 1, 1, 0, 1, 1, 1,
+				0, 1, 0, 0, 1, 1, 0, 0,
+				0, 1, 0, 1, 1, 0, 1, 1
+			]
+			
+			gr = Grid(w, h)
+			gr.assign_cells(playfield, '#f0f0f0')
+			drop(gr, clrs)
+			
+			self.assertEquals(gr.list_cells(), expected)
+		
+		def test_clear(self):
+			w = 8
+			h = 10
+			playfield = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 1, 0, 0,
+				1, 1, 1, 1, 1, 1, 1, 1, # full
+				1, 1, 1, 1, 0, 1, 1, 1,
+				0, 1, 0, 0, 1, 1, 0, 0,
+				1, 1, 1, 1, 1, 1, 1, 1, # full
+				1, 1, 1, 1, 1, 1, 1, 1, # full
+				1, 1, 1, 1, 1, 1, 1, 1, # full
+				0, 1, 0, 1, 1, 0, 1, 1
+			]
+			expected = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				1, 1, 1, 1, 0, 1, 1, 1,
+				0, 1, 0, 0, 1, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 1, 0, 1, 1, 0, 1, 1
+			]
+			
+			gr = Grid(w, h)
+			gr.assign_cells(playfield, '#f0f0f0')
+			clrs = clear(gr)
+			
+			self.assertEquals(gr.list_cells(), expected)
+			self.assertEquals(clrs, [3, 6, 7, 8])
 	
 	class TestShape(unittest.TestCase):
 		

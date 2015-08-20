@@ -13,7 +13,7 @@ class Game:
 
 		self.clock = pygame.time.Clock()
 
-		self.playfield = geometry.Grid(10, 20)
+		self.playfield = Playfield("tetrominos.json")
 		# TODO: load from config
 		self.block_size = 32
 		self.field_pos = (50, 50)
@@ -38,10 +38,19 @@ class Game:
 		self.screen_surf.fill(self.FILL_COLOR)
 		self.grid_surface.fill((0, 0, 0, 0))
 
-		self.grid_renderer.draw(self.grid_surface, self.playfield)
+		self.grid_renderer.draw(self.grid_surface, self.playfield.grid)
 		self.screen_surf.blit(self.grid_surface, self.field_pos)
 
 		pygame.display.update()
 
 	def quit(self):
 		print("Quiting")
+
+class Playfield:
+
+	def __init__(self, path):
+		self.factory = geometry.Factory(path)
+		self.grid = geometry.Grid(self.factory.width, self.factory.height)
+		self.shape = self.factory.spawn(self.factory.width)
+		self.next_shape = self.factory.spawn(self.factory.width)
+

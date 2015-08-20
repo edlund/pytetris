@@ -144,6 +144,8 @@ class Factory:
 		self.shapes = []
 		with open(path, 'r') as f:
 			self.config = json.loads(f.read())
+			self.width = self.config['width']
+			self.height = self.config['height']
 			for desc in self.config['shapes']:
 				self.shapes.append(Shape(desc))
 	
@@ -236,7 +238,6 @@ if __name__ == '__main__':
 				1, 1, 0,
 				0, 1, 1
 			]))
-			
 	
 	class TestFactory(unittest.TestCase):
 		

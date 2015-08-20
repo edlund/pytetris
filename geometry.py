@@ -64,7 +64,7 @@ class Grid:
 	def __init__(self, w, h):
 		self.w = w
 		self.h = h
-		self.cells = [Block(0, "#000000", Block.HOLLOW)
+		self.cells = [Block(0, str("#000000"), Block.HOLLOW)
 			for _ in xrange(w * h)]
 
 class Shape:

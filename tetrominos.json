@@ -1,6 +1,7 @@
 {
 	"width": 10,
 	"height": 20,
+	"block_size": 32,
 	"shapes": [
 		{
 			"name": "Z",

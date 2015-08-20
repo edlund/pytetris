@@ -14,12 +14,11 @@ class Game:
 		self.clock = pygame.time.Clock()
 
 		self.playfield = Playfield("tetrominos.json")
-		# TODO: load from config
-		self.block_size = 32
 		self.field_pos = (50, 50)
 
-		self.grid_renderer = graphics.GridRenderer(self.block_size)
-		self.grid_surface = pygame.Surface((10*self.block_size, 20*self.block_size))
+		block_size = self.playfield.factory.block_size
+		self.grid_renderer = graphics.GridRenderer(block_size)
+		self.grid_surface = pygame.Surface((10 * block_size, 20 * block_size))
 
 	def run(self):
 		print("Running")

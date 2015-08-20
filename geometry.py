@@ -110,6 +110,20 @@ class Shape:
 	def rotation(self, index):
 		return self.grids[index]
 	
+	def random_rotation(self):
+		self.rindex = random.randint(0, 3)
+	
+	def rotate_cw(self):
+		if self.rindex + 1 == len(self.grids): self.rindex = 0
+		else: self.rindex += 1
+	
+	def rotate_ccw(self):
+		if self.rindex == 0: self.rindex = len(self.grids) - 1
+		else: self.rindex -= 1
+	
+	def grid(self):
+		return self.grids[self.rindex]
+	
 	def __init__(self, desc):
 		self.x = 0
 		self.y = 0
@@ -120,6 +134,7 @@ class Shape:
 			for _ in xrange(0, 4)]
 		for g in self.grids:
 			g.assign_cells(Shape._rcw90(desc['blocks'], self.side), desc['color'])
+		self.rindex = 0
 
 class Factory:
 	
@@ -139,7 +154,8 @@ class Factory:
 		self.nextuid += 1
 		s = copy.deepcopy(random.choice(self.shapes))
 		s.assign_uid(self.nextuid)
-		if w > 1:
+		s.random_rotation()
+		if w > s.side:
 			s.x = random.randint(0, w - 1 - s.side)
 		return s
 
@@ -157,7 +173,7 @@ if __name__ == '__main__':
 	
 	class TestShape(unittest.TestCase):
 		
-		def test_rotation(self):
+		def test__rcw90(self):
 			f = Factory("./tetrominos.json")
 			
 			Z = f.find('Z')
@@ -195,6 +211,32 @@ if __name__ == '__main__':
 				1, 1,
 				1, 1,
 			]))
+		
+		def test_rotate(self):
+			f = Factory("./tetrominos.json")
+			Z = f.find('Z')
+			
+			Z.rotate_cw()
+			self.assertTrue(Z.grid().compare_cells([
+				0, 0, 0,
+				1, 1, 0,
+				0, 1, 1
+			]))
+			
+			Z.rotate_cw()
+			self.assertTrue(Z.grid().compare_cells([
+				0, 1, 0,
+				1, 1, 0,
+				1, 0, 0
+			]))
+			
+			Z.rotate_ccw()
+			self.assertTrue(Z.grid().compare_cells([
+				0, 0, 0,
+				1, 1, 0,
+				0, 1, 1
+			]))
+			
 	
 	class TestFactory(unittest.TestCase):
 		

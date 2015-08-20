@@ -133,7 +133,7 @@ class Shape:
 		self.grids = [Grid(self.side, self.side)
 			for _ in xrange(0, 4)]
 		for g in self.grids:
-			g.assign_cells(Shape._rcw90(desc['blocks'], self.side), desc['color'])
+			g.assign_cells(Shape._rcw90(desc['blocks'], self.side), str(desc['color']))
 		self.rindex = 0
 
 class Factory:

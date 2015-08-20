@@ -256,6 +256,7 @@ if __name__ == '__main__':
 			s = f.spawn(w)
 			self.assertEqual(s.uid, 1)
 			self.assertTrue(s.x >= 0 and s.x < w - s.side)
+			self.assertTrue(s.rindex >= 0 and s.rindex < len(s.grids))
 	
 	unittest.main()
 	

@@ -189,6 +189,7 @@ class Factory:
 			self.config = json.loads(f.read())
 			self.width = self.config['width']
 			self.height = self.config['height']
+			self.block_size = self.config['block_size']
 			for desc in self.config['shapes']:
 				self.shapes.append(Shape(desc))
 	

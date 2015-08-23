@@ -12,6 +12,15 @@ def _swap(l, i, j):
 	# Helper to make list swaps less verbose.
 	l[i], l[j] = l[j], l[i]
 
+def score(clrs):
+	mult = len(clrs)
+	base = 1000
+	points = mult * base
+	return (
+		points,
+		"{0}x line clear".format(mult)
+	)
+
 def drop(grid, clrs):
 	# Drop blocks after a %clear()-call.
 	for y0 in clrs:
@@ -216,6 +225,12 @@ if __name__ == '__main__':
 			j = 2
 			_swap(l, i, j)
 			self.assertEqual("".join(l), "hello world!")
+		
+		def test_score(self):
+			clrs = [6, 7, 8, 9]
+			pts, msg = score(clrs)
+			self.assertEqual(pts, 4000)
+			self.assertEqual(msg, "4x line clear")
 		
 		def test_drop(self):
 			w = 8

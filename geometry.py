@@ -190,7 +190,7 @@ class Shape:
 
 class Factory:
 	
-	def __init__(self, path):
+	def __init__(self, path, shapes="tetrominos"):
 		self.nextuid = 0
 		self.path = path
 		self.shapes = []
@@ -199,7 +199,7 @@ class Factory:
 			self.width = self.config['width']
 			self.height = self.config['height']
 			self.block_size = self.config['block_size']
-			for desc in self.config['shapes']:
+			for desc in self.config['shapes'][shapes]:
 				self.shapes.append(Shape(desc))
 	
 	def find(self, name):
@@ -305,7 +305,7 @@ if __name__ == '__main__':
 	class TestShape(unittest.TestCase):
 		
 		def test__rcw90(self):
-			f = Factory("./tetrominos.json")
+			f = Factory("./config.json")
 			
 			Z = f.find('Z')
 			self.assertTrue(Z.rotation(Shape.R_000).compare_cells([
@@ -344,7 +344,7 @@ if __name__ == '__main__':
 			]))
 		
 		def test_rotate(self):
-			f = Factory("./tetrominos.json")
+			f = Factory("./config.json")
 			Z = f.find('Z')
 			
 			Z.rotate_cw()
@@ -371,7 +371,7 @@ if __name__ == '__main__':
 	class TestFactory(unittest.TestCase):
 		
 		def test_find(self):
-			f = Factory("./tetrominos.json")
+			f = Factory("./config.json")
 			Z = f.find('Z')
 			T = f.find('T')
 			I = f.find('I')
@@ -382,7 +382,7 @@ if __name__ == '__main__':
 		
 		def test_spawn(self):
 			w = 10
-			f = Factory("./tetrominos.json")
+			f = Factory("./config.json")
 			s = f.spawn(w)
 			self.assertEqual(s.uid, 1)
 			self.assertTrue(s.x >= 0 and s.x < w - s.side)

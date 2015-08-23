@@ -1,0 +1,80 @@
+{
+	"width": 10,
+	"height": 20,
+	"block_size": 32,
+	"shapes": {
+		"tetrominos": [
+			{
+				"name": "Z",
+				"color": "#FF0000; red",
+				"side": 3,
+				"blocks": [
+					1, 1, 0,
+					0, 1, 1,
+					0, 0, 0
+				]
+			},
+			{
+				"name": "T",
+				"color": "#00FF00; green",
+				"side": 3,
+				"blocks": [
+					0, 1, 0,
+					1, 1, 1,
+					0, 0, 0
+				]
+			},
+			{
+				"name": "L",
+				"color": "#0000FF; blue",
+				"side": 3,
+				"blocks": [
+					0, 1, 0,
+					0, 1, 0,
+					0, 1, 1
+				]
+			},
+			{
+				"name": "J",
+				"color": "#00FFFF; cyan",
+				"side": 3,
+				"blocks": [
+					0, 1, 0,
+					0, 1, 0,
+					1, 1, 0
+				]
+			},
+			{
+				"name": "S",
+				"color": "#FF00FF; magenta",
+				"side": 3,
+				"blocks": [
+					0, 1, 1,
+					1, 1, 0,
+					0, 0, 0
+				]
+			},
+			{
+				"name": "I",
+				"color": "#FFFF00; yellow",
+				"side": 4,
+				"blocks": [
+					0, 1, 0, 0,
+					0, 1, 0, 0,
+					0, 1, 0, 0,
+					0, 1, 0, 0
+				]
+			},
+			{
+				"name": "O",
+				"color": "#C0C0C0; silver",
+				"side": 2,
+				"blocks": [
+					1, 1,
+					1, 1
+				]
+			}
+		]
+	}
+}
+

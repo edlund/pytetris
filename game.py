@@ -90,8 +90,6 @@ class Game:
 			else:
 				self.playfield.shape_tick()
 
-
-
 	def draw(self):
 		self.screen_surf.fill(self.FILL_COLOR)
 		self.grid_surface.fill((0, 0, 0, 0))
@@ -116,11 +114,17 @@ class Playfield:
 		self.grid = geometry.Grid(self.factory.width, self.factory.height)
 		self.shape = self.factory.spawn(self.factory.width)
 		self.next_shape = self.factory.spawn(self.factory.width)
+		self.score = 0
 
 	def shape_land(self):
 		geometry.freeze(self.shape, self.grid)
 		self.shape = self.next_shape
 		self.next_shape = self.factory.spawn(self.factory.width)
+		lines = geometry.clear(self.grid)
+		geometry.drop(self.grid, lines)
+		score, message = geometry.score(lines)
+		self.score += score
+		print(score)
 	
 	def shape_tick(self):
 		self.shape.y += 1

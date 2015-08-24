@@ -22,10 +22,17 @@ class Game:
 
 		self.event_handlers = []
 
+		self.set_callbacks()
+
+
+	def set_callbacks(self):
+
 		def keydown(event):
+			self.playfield.shape.y += 1
 			print("KEYDOWN")
 
 		self.event_handlers.append(EventHandler(pygame.KEYDOWN, keydown))
+
 
 	def run(self):
 		print("Running")
@@ -58,6 +65,8 @@ class Game:
 		self.grid_surface.fill((0, 0, 0, 0))
 
 		self.grid_renderer.draw(self.grid_surface, self.playfield.grid)
+		self.grid_renderer.draw_shape(self.grid_surface, self.playfield.shape)
+
 		self.screen_surf.blit(self.grid_surface, self.field_pos)
 
 		pygame.display.update()
@@ -81,5 +90,4 @@ class EventHandler:
 
 	def call(self, event):
 		self.callback(event)
-
 

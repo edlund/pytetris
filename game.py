@@ -4,6 +4,7 @@ import graphics
 
 class Game:
 	FILL_COLOR = (100, 0, 0)
+	MAX_EVENTS = 0
 
 	def __init__(self, size):
 		pygame.init()
@@ -47,14 +48,17 @@ class Game:
 			self.step_clock += delta_tick
 
 			event = pygame.event.poll()
-
+			events_processed = 0
 			while event.type != pygame.NOEVENT:
-
 				for handler in self.event_handlers:
 					if handler.event_type == event.type:
 						handler.call(event)
 
 				event = pygame.event.poll()
+
+				events_processed += 1
+				if events_processed > self.MAX_EVENTS:
+					break
 
 			self.tick()
 			self.draw()

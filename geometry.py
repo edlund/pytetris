@@ -66,6 +66,23 @@ def freeze(shape, grid):
 						b
 					)
 
+def collide(shape, grid, dX, dY):
+	# Test if the given shape collides with any blocks in
+	# the given grid.
+	for y in xrange(0, shape.grid().h):
+		for x in xrange(0, shape.grid().w):
+			real_x = x + shape.x + dX
+			real_y = y + shape.y + dY
+			if real_x >= 0 and real_x < grid.w and \
+					real_y >= 0 and real_y < grid.h:
+				shape_blk = shape.grid().coord_to_block(x, y)
+				grid_blk = grid.coord_to_block(real_x, real_y)
+				if shape_blk.filled() and grid_blk.filled():
+					return True
+			else:
+				return True
+	return False
+
 class Block:
 	
 	HOLLOW = 0
@@ -359,6 +376,54 @@ if __name__ == '__main__':
 			freeze(T, gr)
 			
 			self.assertEquals(gr.list_cells(), expected)
+		
+		def test_collide(self):
+			w = 8
+			h = 10
+			playfield = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 1, 0, 0, 0, 1,
+				1, 1, 0, 1, 1, 0, 0, 1,
+				0, 1, 1, 1, 0, 0, 1, 1
+			]
+			
+			gr = Grid(w, h)
+			gr.assign_cells(playfield, '#f0f0f0')
+			
+			f = Factory("./config.json")
+			T = f.find('T')
+			
+			# Place the shape above the "landed" T, move it down once.
+			T.x = 2
+			T.y = 4
+			self.assertTrue(collide(T, gr, +0, +1))
+			
+			# Place the shape at the left grid border, move it left once.
+			T.x = 0
+			T.y = 4
+			self.assertTrue(collide(T, gr, -1, +0))
+			
+			# Place the shape in the "hole" on the right bottom at the grid.
+			T.x = 4
+			T.y = 7
+			self.assertTrue(collide(T, gr, +0, +1))
+			self.assertTrue(collide(T, gr, -1, +0))
+			self.assertTrue(collide(T, gr, +1, +0))
+			self.assertFalse(collide(T, gr, +0, -1))
+			
+			# Place the shape where it can not collide, move it around.
+			T.x = 3
+			T.y = 2
+			self.assertFalse(collide(T, gr, +0, +1))
+			self.assertFalse(collide(T, gr, +0, -1))
+			self.assertFalse(collide(T, gr, -1, +0))
+			self.assertFalse(collide(T, gr, +1, +0))
 	
 	class TestShape(unittest.TestCase):
 		

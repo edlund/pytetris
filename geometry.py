@@ -12,10 +12,90 @@ def _swap(l, i, j):
 	# Helper to make list swaps less verbose.
 	l[i], l[j] = l[j], l[i]
 
+def score(clrs):
+	mult = len(clrs)
+	base = 1000
+	points = mult * base
+	return (
+		points,
+		"{0}x line clear".format(mult)
+	)
+
+def drop(grid, clrs):
+	# Drop blocks after a %clear()-call.
+	for y0 in clrs:
+		for y in xrange(y0, 1, -1):
+			for x in xrange(0, grid.w):
+				_swap(
+					grid.cells,
+					grid.coord_to_index(x, y - 0),
+					grid.coord_to_index(x, y - 1),
+				)
+
+def clear(grid):
+	# Detect and clear lines on the x-plane in the given grid.
+	clrs = []
+	width = grid.w
+	height = grid.h
+	
+	for y in xrange(0, height):
+		blks = []
+		for x in xrange(0, width):
+			b = grid.coord_to_block(x, y)
+			if b.filled():
+				blks.append(b)
+		if len(blks) == width:
+			if y:
+				clrs.append(y)
+			for b in blks:
+				b.clear()
+	return clrs
+
+def freeze(shape, grid):
+	# Freeze the given shape to the given grid.
+	for y in xrange(0, shape.grid().h):
+		for x in xrange(0, shape.grid().w):
+			real_x = x + shape.x
+			real_y = y + shape.y
+			if real_x < grid.w and real_y < grid.h:
+				b = shape.grid().coord_to_block(x, y)
+				if b.filled():
+					grid.assign_block(
+						real_x,
+						real_y,
+						b
+					)
+
+def collide(shape, grid, dX, dY):
+	# Test if the given shape collides with any blocks in
+	# the given grid.
+	for y in xrange(0, shape.grid().h):
+		for x in xrange(0, shape.grid().w):
+			real_x = x + shape.x + dX
+			real_y = y + shape.y + dY
+			if real_x >= 0 and real_x < grid.w and \
+					real_y >= 0 and real_y < grid.h:
+				shape_blk = shape.grid().coord_to_block(x, y)
+				grid_blk = grid.coord_to_block(real_x, real_y)
+				if shape_blk.filled() and grid_blk.filled():
+					return True
+			else:
+				return True
+	return False
+
 class Block:
 	
 	HOLLOW = 0
 	FILLED = 1
+	
+	def clear(self):
+		self.uid = 0
+		self.value = 0
+		self.color = str('#000000')
+		self.state = Block.HOLLOW
+	
+	def filled(self):
+		return self.state == Block.FILLED
 	
 	def __init__(self, value, color, state):
 		self.uid = 0
@@ -28,10 +108,13 @@ class Grid:
 	def coord_to_index(self, x, y):
 		if x >= self.w or y >= self.h:
 			raise IndexError()
-		return x * y + x
+		return self.w * y + x
 	
 	def coord_to_block(self, x, y):
 		return self.cells[self.coord_to_index(x, y)]
+	
+	def assign_block(self, x, y, b):
+		self.cells[self.coord_to_index(x, y)] = b
 	
 	def assign_uid(self, uid):
 		for b in self.cells:
@@ -42,6 +125,9 @@ class Grid:
 		for i in xrange(0, len(blocks)):
 			if blocks[i]:
 				self.cells[i] = Block(blocks[i], color, Block.FILLED)
+	
+	def list_cells(self):
+		return [b.value for b in self.cells]
 	
 	def compare_cells(self, blocks):
 		if len(self.cells) != len(blocks):
@@ -133,12 +219,13 @@ class Shape:
 		self.grids = [Grid(self.side, self.side)
 			for _ in xrange(0, 4)]
 		for g in self.grids:
-			g.assign_cells(Shape._rcw90(desc['blocks'], self.side), str(desc['color']))
+			g.assign_cells(Shape._rcw90(desc['blocks'],
+				self.side), str(desc['color']))
 		self.rindex = 0
 
 class Factory:
 	
-	def __init__(self, path):
+	def __init__(self, path, shapes="tetrominos"):
 		self.nextuid = 0
 		self.path = path
 		self.shapes = []
@@ -147,7 +234,7 @@ class Factory:
 			self.width = self.config['width']
 			self.height = self.config['height']
 			self.block_size = self.config['block_size']
-			for desc in self.config['shapes']:
+			for desc in self.config['shapes'][shapes]:
 				self.shapes.append(Shape(desc))
 	
 	def find(self, name):
@@ -173,11 +260,175 @@ if __name__ == '__main__':
 			j = 2
 			_swap(l, i, j)
 			self.assertEqual("".join(l), "hello world!")
+		
+		def test_score(self):
+			clrs = [6, 7, 8, 9]
+			pts, msg = score(clrs)
+			self.assertEqual(pts, 4000)
+			self.assertEqual(msg, "4x line clear")
+		
+		def test_drop(self):
+			w = 8
+			h = 10
+			clrs = [3, 6, 7, 8]
+			playfield = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				1, 1, 1, 1, 0, 1, 1, 1,
+				0, 1, 0, 0, 1, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 1, 0, 1, 1, 0, 1, 1
+			]
+			expected = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 1, 0, 0,
+				1, 1, 1, 1, 0, 1, 1, 1,
+				0, 1, 0, 0, 1, 1, 0, 0,
+				0, 1, 0, 1, 1, 0, 1, 1
+			]
+			
+			gr = Grid(w, h)
+			gr.assign_cells(playfield, '#f0f0f0')
+			drop(gr, clrs)
+			
+			self.assertEquals(gr.list_cells(), expected)
+		
+		def test_clear(self):
+			w = 8
+			h = 10
+			playfield = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 1, 0, 0,
+				1, 1, 1, 1, 1, 1, 1, 1, # full
+				1, 1, 1, 1, 0, 1, 1, 1,
+				0, 1, 0, 0, 1, 1, 0, 0,
+				1, 1, 1, 1, 1, 1, 1, 1, # full
+				1, 1, 1, 1, 1, 1, 1, 1, # full
+				1, 1, 1, 1, 1, 1, 1, 1, # full
+				0, 1, 0, 1, 1, 0, 1, 1
+			]
+			expected = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				1, 1, 1, 1, 0, 1, 1, 1,
+				0, 1, 0, 0, 1, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 0, 0, 0, 0, 0, 0, 0, # cleared
+				0, 1, 0, 1, 1, 0, 1, 1
+			]
+			
+			gr = Grid(w, h)
+			gr.assign_cells(playfield, '#f0f0f0')
+			clrs = clear(gr)
+			
+			self.assertEquals(gr.list_cells(), expected)
+			self.assertEquals(clrs, [3, 6, 7, 8])
+		
+		def test_freeze(self):
+			w = 8
+			h = 10
+			playfield = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 0, 0, 0, 0, 0, 0,
+				0, 1, 1, 0, 0, 0, 0, 0
+			]
+			expected = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 1, 0, 0, 0, 0,
+				1, 1, 0, 1, 1, 0, 0, 0,
+				0, 1, 1, 1, 0, 0, 0, 0
+			]
+			
+			gr = Grid(w, h)
+			gr.assign_cells(playfield, '#f0f0f0')
+			
+			f = Factory("./config.json")
+			T = f.find('T')
+			T.x = 2
+			T.y = 7
+			
+			freeze(T, gr)
+			
+			self.assertEquals(gr.list_cells(), expected)
+		
+		def test_collide(self):
+			w = 8
+			h = 10
+			playfield = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 1, 0, 0, 0, 1,
+				1, 1, 0, 1, 1, 0, 0, 1,
+				0, 1, 1, 1, 0, 0, 1, 1
+			]
+			
+			gr = Grid(w, h)
+			gr.assign_cells(playfield, '#f0f0f0')
+			
+			f = Factory("./config.json")
+			T = f.find('T')
+			
+			# Place the shape above the "landed" T, move it down once.
+			T.x = 2
+			T.y = 4
+			self.assertTrue(collide(T, gr, +0, +1))
+			
+			# Place the shape at the left grid border, move it left once.
+			T.x = 0
+			T.y = 4
+			self.assertTrue(collide(T, gr, -1, +0))
+			
+			# Place the shape in the "hole" on the right bottom at the grid.
+			T.x = 4
+			T.y = 7
+			self.assertTrue(collide(T, gr, +0, +1))
+			self.assertTrue(collide(T, gr, -1, +0))
+			self.assertTrue(collide(T, gr, +1, +0))
+			self.assertFalse(collide(T, gr, +0, -1))
+			
+			# Place the shape where it can not collide, move it around.
+			T.x = 3
+			T.y = 2
+			self.assertFalse(collide(T, gr, +0, +1))
+			self.assertFalse(collide(T, gr, +0, -1))
+			self.assertFalse(collide(T, gr, -1, +0))
+			self.assertFalse(collide(T, gr, +1, +0))
 	
 	class TestShape(unittest.TestCase):
 		
 		def test__rcw90(self):
-			f = Factory("./tetrominos.json")
+			f = Factory("./config.json")
 			
 			Z = f.find('Z')
 			self.assertTrue(Z.rotation(Shape.R_000).compare_cells([
@@ -216,7 +467,7 @@ if __name__ == '__main__':
 			]))
 		
 		def test_rotate(self):
-			f = Factory("./tetrominos.json")
+			f = Factory("./config.json")
 			Z = f.find('Z')
 			
 			Z.rotate_cw()
@@ -243,7 +494,7 @@ if __name__ == '__main__':
 	class TestFactory(unittest.TestCase):
 		
 		def test_find(self):
-			f = Factory("./tetrominos.json")
+			f = Factory("./config.json")
 			Z = f.find('Z')
 			T = f.find('T')
 			I = f.find('I')
@@ -254,7 +505,7 @@ if __name__ == '__main__':
 		
 		def test_spawn(self):
 			w = 10
-			f = Factory("./tetrominos.json")
+			f = Factory("./config.json")
 			s = f.spawn(w)
 			self.assertEqual(s.uid, 1)
 			self.assertTrue(s.x >= 0 and s.x < w - s.side)

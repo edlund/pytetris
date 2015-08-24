@@ -13,7 +13,7 @@ class Game:
 
 		self.clock = pygame.time.Clock()
 
-		self.playfield = Playfield("tetrominos.json")
+		self.playfield = Playfield("config.json")
 		self.field_pos = (50, 50)
 
 		block_size = self.playfield.factory.block_size

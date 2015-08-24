@@ -70,10 +70,9 @@ class Game:
 		if self.step_clock >= self.step_intervall:
 			self.step_clock = 0
 			if geometry.collide(self.playfield.shape, self.playfield.grid, 0, 1):
-				geometry.freeze(self.playfield.shape, self.playfield.grid)
-				self.playfield.shape_landed()
+				self.playfield.shape_land()
 			else:
-				self.playfield.shape.y += 1
+				self.playfield.shape_tick()
 
 
 
@@ -102,9 +101,13 @@ class Playfield:
 		self.shape = self.factory.spawn(self.factory.width)
 		self.next_shape = self.factory.spawn(self.factory.width)
 
-	def shape_landed(self):
+	def shape_land(self):
+		geometry.freeze(self.shape, self.grid)
 		self.shape = self.next_shape
 		self.next_shape = self.factory.spawn(self.factory.width)
+	
+	def shape_tick(self):
+		self.shape.y += 1
 
 class EventHandler:
 

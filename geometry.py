@@ -51,6 +51,19 @@ def clear(grid):
 				b.clear()
 	return clrs
 
+def freeze(shape, grid):
+	# Freeze the given shape to the given grid.
+	for y in xrange(0, shape.grid().h):
+		for x in xrange(0, shape.grid().w):
+			real_x = x + shape.x
+			real_y = y + shape.y
+			if real_x < grid.w and real_y < grid.h:
+				grid.assign_block(
+					real_x,
+					real_y,
+					shape.grid().coord_to_block(x, y)
+				)
+
 class Block:
 	
 	HOLLOW = 0
@@ -80,6 +93,9 @@ class Grid:
 	
 	def coord_to_block(self, x, y):
 		return self.cells[self.coord_to_index(x, y)]
+	
+	def assign_block(self, x, y, b):
+		self.cells[self.coord_to_index(x, y)] = b
 	
 	def assign_uid(self, uid):
 		for b in self.cells:
@@ -301,6 +317,33 @@ if __name__ == '__main__':
 			
 			self.assertEquals(gr.list_cells(), expected)
 			self.assertEquals(clrs, [3, 6, 7, 8])
+		
+		def test_freeze(self):
+			w = 8
+			h = 10
+			expected = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 1, 0, 0, 0, 0,
+				0, 0, 0, 1, 1, 0, 0, 0,
+				0, 0, 0, 1, 0, 0, 0, 0
+			]
+			
+			gr = Grid(w, h)
+			
+			f = Factory("./config.json")
+			T = f.find('T')
+			T.x = 2
+			T.y = 7
+			
+			freeze(T, gr)
+			
+			self.assertEquals(gr.list_cells(), expected)
 	
 	class TestShape(unittest.TestCase):
 		

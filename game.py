@@ -33,9 +33,25 @@ class Game:
 	def set_callbacks(self):
 
 		def keydown(event):
-			self.playfield.shape.y += 1
-			print("KEYDOWN")
-
+			s = self.playfield.shape
+			g = self.playfield.grid
+			
+			if event.key == pygame.K_w:
+				s.rotate_cw()
+				if geometry.collide(s, g, 0, 0):
+					s.rotate_ccw()
+			
+			if event.key == pygame.K_SPACE:
+				while not geometry.collide(s, g, 0, +1):
+					s.y += 1
+			
+			if event.key == pygame.K_s and not geometry.collide(s, g, +0, +1):
+				s.y += 1
+			if event.key == pygame.K_a and not geometry.collide(s, g, -1, +0):
+				s.x -= 1
+			if event.key == pygame.K_d and not geometry.collide(s, g, +1, +0):
+				s.x += 1
+		
 		self.event_handlers.append(EventHandler(pygame.KEYDOWN, keydown))
 
 

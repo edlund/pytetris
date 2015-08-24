@@ -124,7 +124,7 @@ class Playfield:
 		geometry.drop(self.grid, lines)
 		score, message = geometry.score(lines)
 		self.score += score
-		print(score)
+		print(self.score)
 	
 	def shape_tick(self):
 		self.shape.y += 1

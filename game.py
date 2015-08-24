@@ -20,11 +20,31 @@ class Game:
 		self.grid_renderer = graphics.GridRenderer(block_size)
 		self.grid_surface = pygame.Surface((10 * block_size, 20 * block_size))
 
+		self.event_handlers = []
+
+		def keydown(event):
+			print("KEYDOWN")
+
+		self.event_handlers.append(EventHandler(pygame.KEYDOWN, keydown))
+
 	def run(self):
 		print("Running")
+
+
 		done = False
 		while not done:
 			self.clock.tick(60)
+
+			event = pygame.event.poll()
+
+			while event.type != pygame.NOEVENT:
+
+				for handler in self.event_handlers:
+					if handler.event_type == event.type:
+						handler.call(event)
+
+				event = pygame.event.poll()
+
 			self.tick()
 			self.draw()
 
@@ -52,4 +72,14 @@ class Playfield:
 		self.grid = geometry.Grid(self.factory.width, self.factory.height)
 		self.shape = self.factory.spawn(self.factory.width)
 		self.next_shape = self.factory.spawn(self.factory.width)
+
+class EventHandler:
+
+	def __init__(self, event_type, callback):
+		self.event_type = event_type
+		self.callback = callback
+
+	def call(self, event):
+		self.callback(event)
+
 

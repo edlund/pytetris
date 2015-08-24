@@ -74,7 +74,7 @@ class Block:
 	def clear(self):
 		self.uid = 0
 		self.value = 0
-		self.color = '#000000'
+		self.color = str('#000000')
 		self.state = Block.HOLLOW
 	
 	def filled(self):

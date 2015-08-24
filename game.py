@@ -81,6 +81,7 @@ class Game:
 		self.grid_surface.fill((0, 0, 0, 0))
 
 		self.grid_renderer.draw_shape(self.grid_surface, self.playfield.shape)
+		self.grid_renderer.draw(self.grid_surface, self.playfield.grid)
 
 		self.screen_surf.blit(self.grid_surface, self.field_pos)
 

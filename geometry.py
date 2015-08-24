@@ -73,14 +73,14 @@ def collide(shape, grid, dX, dY):
 		for x in xrange(0, shape.grid().w):
 			real_x = x + shape.x + dX
 			real_y = y + shape.y + dY
-			if real_x >= 0 and real_x < grid.w and \
-					real_y >= 0 and real_y < grid.h:
-				shape_blk = shape.grid().coord_to_block(x, y)
-				grid_blk = grid.coord_to_block(real_x, real_y)
-				if shape_blk.filled() and grid_blk.filled():
+			shape_blk = shape.grid().coord_to_block(x, y)
+			if shape_blk.filled():
+				if real_x < 0 or real_x >= grid.w or real_y >= grid.h:
 					return True
-			else:
-				return True
+				else:
+					grid_blk = grid.coord_to_block(real_x, real_y)
+					if shape_blk.filled() and grid_blk.filled():
+						return True
 	return False
 
 class Block:
@@ -104,6 +104,10 @@ class Block:
 		self.state = state
 
 class Grid:
+	
+	def clear(self):
+		for b in self.cells:
+			b.clear()
 	
 	def coord_to_index(self, x, y):
 		if x >= self.w or y >= self.h:
@@ -404,10 +408,12 @@ if __name__ == '__main__':
 			T.y = 4
 			self.assertTrue(collide(T, gr, +0, +1))
 			
-			# Place the shape at the left grid border, move it left once.
+			# Place the shape at the left grid border, move it left twice.
+			# Move it twice in order to actual collide it with the current
+			# default rotation.
 			T.x = 0
 			T.y = 4
-			self.assertTrue(collide(T, gr, -1, +0))
+			self.assertTrue(collide(T, gr, -2, +0))
 			
 			# Place the shape in the "hole" on the right bottom at the grid.
 			T.x = 4
@@ -424,6 +430,16 @@ if __name__ == '__main__':
 			self.assertFalse(collide(T, gr, +0, -1))
 			self.assertFalse(collide(T, gr, -1, +0))
 			self.assertFalse(collide(T, gr, +1, +0))
+			
+			gr.clear()
+			
+			I = f.find('I')
+			I.x = 0
+			I.y = 8
+			self.assertFalse(collide(I, gr, +0, +0))
+			self.assertFalse(collide(I, gr, +1, +0))
+			self.assertTrue(collide(I, gr, -1, +0))
+			self.assertTrue(collide(I, gr, +0, +1))
 	
 	class TestShape(unittest.TestCase):
 		

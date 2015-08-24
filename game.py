@@ -20,6 +20,7 @@ class Game:
 		block_size = self.playfield.factory.block_size
 		self.grid_renderer = graphics.GridRenderer(block_size)
 		self.grid_surface = pygame.Surface((10 * block_size, 20 * block_size))
+		self.next_shape_surface = pygame.Surface((4 * block_size, 4 * block_size))
 
 		self.step_intervall = 1000 # in ms
 		self.step_clock = 0
@@ -79,11 +80,14 @@ class Game:
 	def draw(self):
 		self.screen_surf.fill(self.FILL_COLOR)
 		self.grid_surface.fill((0, 0, 0, 0))
+		self.next_shape_surface.fill((0, 0, 0, 0))
 
 		self.grid_renderer.draw_shape(self.grid_surface, self.playfield.shape)
 		self.grid_renderer.draw(self.grid_surface, self.playfield.grid)
+		self.grid_renderer.draw_shape(self.next_shape_surface, self.playfield.next_shape, 0, 0)
 
 		self.screen_surf.blit(self.grid_surface, self.field_pos)
+		self.screen_surf.blit(self.next_shape_surface, (400, 20))
 
 		pygame.display.update()
 

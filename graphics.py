@@ -19,7 +19,10 @@ class GridRenderer:
 					pygame.draw.rect(surface, color, (real_x * self.block_size, real_y * self.block_size, self.block_size, self.block_size))
 					pygame.draw.rect(surface, (40, 40, 40), (real_x * self.block_size, real_y * self.block_size, self.block_size, self.block_size), 1)
 
-	def draw_shape(self, surface, shape):
-		self.draw(surface, shape.grid(), shape.x, shape.y)
+	def draw_shape(self, surface, shape, x = None, y = None):
+		if x == None and y == None:
+			self.draw(surface, shape.grid(), shape.x, shape.y)
+		else:
+			self.draw(surface, shape.grid(), x, y)
 
 

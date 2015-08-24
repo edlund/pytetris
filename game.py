@@ -20,6 +20,9 @@ class Game:
 		self.grid_renderer = graphics.GridRenderer(block_size)
 		self.grid_surface = pygame.Surface((10 * block_size, 20 * block_size))
 
+		self.step_intervall = 1000 # in ms
+		self.step_clock = 0
+
 		self.event_handlers = []
 
 		self.set_callbacks()
@@ -40,7 +43,8 @@ class Game:
 
 		done = False
 		while not done:
-			self.clock.tick(60)
+			delta_tick = self.clock.tick(60)
+			self.step_clock += delta_tick
 
 			event = pygame.event.poll()
 
@@ -58,13 +62,20 @@ class Game:
 		quit()
 
 	def tick(self):
-		pass
+		if self.step_clock >= self.step_intervall:
+			self.step_clock = 0
+			if geometry.collide(self.playfield.shape, self.playfield.grid, 0, 1):
+				geometry.freeze(self.playfield.shape, self.playfield.grid)
+				self.playfield.shape_landed()
+			else:
+				self.playfield.shape.y += 1
+
+
 
 	def draw(self):
 		self.screen_surf.fill(self.FILL_COLOR)
 		self.grid_surface.fill((0, 0, 0, 0))
 
-		self.grid_renderer.draw(self.grid_surface, self.playfield.grid)
 		self.grid_renderer.draw_shape(self.grid_surface, self.playfield.shape)
 
 		self.screen_surf.blit(self.grid_surface, self.field_pos)
@@ -80,6 +91,10 @@ class Playfield:
 		self.factory = geometry.Factory(path)
 		self.grid = geometry.Grid(self.factory.width, self.factory.height)
 		self.shape = self.factory.spawn(self.factory.width)
+		self.next_shape = self.factory.spawn(self.factory.width)
+
+	def shape_landed(self):
+		self.shape = self.next_shape
 		self.next_shape = self.factory.spawn(self.factory.width)
 
 class EventHandler:

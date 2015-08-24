@@ -58,11 +58,13 @@ def freeze(shape, grid):
 			real_x = x + shape.x
 			real_y = y + shape.y
 			if real_x < grid.w and real_y < grid.h:
-				grid.assign_block(
-					real_x,
-					real_y,
-					shape.grid().coord_to_block(x, y)
-				)
+				b = shape.grid().coord_to_block(x, y)
+				if b.filled():
+					grid.assign_block(
+						real_x,
+						real_y,
+						b
+					)
 
 class Block:
 	
@@ -321,6 +323,18 @@ if __name__ == '__main__':
 		def test_freeze(self):
 			w = 8
 			h = 10
+			playfield = [
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 0, 0, 0, 0, 0, 0,
+				0, 1, 1, 0, 0, 0, 0, 0
+			]
 			expected = [
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
@@ -330,11 +344,12 @@ if __name__ == '__main__':
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 1, 0, 0, 0, 0,
-				0, 0, 0, 1, 1, 0, 0, 0,
-				0, 0, 0, 1, 0, 0, 0, 0
+				1, 1, 0, 1, 1, 0, 0, 0,
+				0, 1, 1, 1, 0, 0, 0, 0
 			]
 			
 			gr = Grid(w, h)
+			gr.assign_cells(playfield, '#f0f0f0')
 			
 			f = Factory("./config.json")
 			T = f.find('T')

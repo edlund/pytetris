@@ -3,7 +3,7 @@
 run_tests() {
 	echo ""
 	echo "$1:"
-	python "$1"
+	python2 "$1"
 	echo ""
 }
 

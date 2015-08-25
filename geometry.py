@@ -83,6 +83,14 @@ def collide(shape, grid, dX, dY):
 						return True
 	return False
 
+def shadow(shape, grid, color='#ffffff'):
+	# Get a shadow for the given shape, ready to be rendered.
+	s = copy.deepcopy(shape)
+	s.grid().assign_color(color)
+	while not collide(s, grid, +0, +1):
+		s.y += 1
+	return s
+
 class Block:
 	
 	HOLLOW = 0
@@ -117,12 +125,17 @@ class Grid:
 	def coord_to_block(self, x, y):
 		return self.cells[self.coord_to_index(x, y)]
 	
+	def assign_color(self, color):
+		for b in self.cells:
+			if b.filled():
+				b.color = str(color)
+	
 	def assign_block(self, x, y, b):
 		self.cells[self.coord_to_index(x, y)] = b
 	
 	def assign_uid(self, uid):
 		for b in self.cells:
-			if b.state == Block.FILLED:
+			if b.filled():
 				b.uid = uid
 	
 	def assign_cells(self, blocks, color):

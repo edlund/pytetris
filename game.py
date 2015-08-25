@@ -94,7 +94,10 @@ class Game:
 		self.screen_surf.fill(self.FILL_COLOR)
 		self.grid_surface.fill((0, 0, 0, 0))
 		self.next_shape_surface.fill((0, 0, 0, 0))
-
+		
+		shadow = geometry.shadow(self.playfield.shape, self.playfield.grid)
+		
+		self.grid_renderer.draw_shape(self.grid_surface, shadow)
 		self.grid_renderer.draw_shape(self.grid_surface, self.playfield.shape)
 		self.grid_renderer.draw(self.grid_surface, self.playfield.grid)
 		self.grid_renderer.draw_shape(self.next_shape_surface, self.playfield.next_shape, 0, 0)

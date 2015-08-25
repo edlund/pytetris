@@ -11,16 +11,18 @@ class Game:
 
 		pygame.display.init()
 		self.screen_surf = pygame.display.set_mode(size)
+		
+		self.done = False
 
 		self.clock = pygame.time.Clock()
 
 		self.playfield = Playfield("config.json")
 		self.field_pos = (50, 50)
 
-		block_size = self.playfield.factory.block_size
-		self.grid_renderer = graphics.GridRenderer(block_size)
-		self.grid_surface = pygame.Surface((10 * block_size, 20 * block_size))
-		self.next_shape_surface = pygame.Surface((4 * block_size, 4 * block_size))
+		self.block_size = self.playfield.factory.block_size
+		self.grid_renderer = graphics.GridRenderer(self.block_size)
+		self.grid_surface = pygame.Surface((10 * self.block_size, 20 * self.block_size))
+		self.next_shape_surface = pygame.Surface((4 * self.block_size, 4 * self.block_size))
 
 		self.step_intervall = 1000 # in ms
 		self.step_clock = 0
@@ -41,6 +43,8 @@ class Game:
 				if geometry.collide(s, g, 0, 0):
 					s.rotate_ccw()
 			
+			if event.key == pygame.K_ESCAPE:
+				self.done = True
 			if event.key == pygame.K_SPACE:
 				while not geometry.collide(s, g, 0, +1):
 					s.y += 1
@@ -56,11 +60,7 @@ class Game:
 
 
 	def run(self):
-		print("Running")
-
-
-		done = False
-		while not done:
+		while not self.done:
 			delta_tick = self.clock.tick(60)
 			self.step_clock += delta_tick
 
@@ -100,10 +100,11 @@ class Game:
 		self.grid_renderer.draw_shape(self.grid_surface, shadow)
 		self.grid_renderer.draw_shape(self.grid_surface, self.playfield.shape)
 		self.grid_renderer.draw(self.grid_surface, self.playfield.grid)
-		self.grid_renderer.draw_shape(self.next_shape_surface, self.playfield.next_shape, 0, 0)
+		self.grid_renderer.draw_shape(self.next_shape_surface,
+			self.playfield.next_shape, 0, 0)
 
 		self.screen_surf.blit(self.grid_surface, self.field_pos)
-		self.screen_surf.blit(self.next_shape_surface, (400, 20))
+		self.screen_surf.blit(self.next_shape_surface, (400, 50))
 
 		pygame.display.update()
 
@@ -127,7 +128,9 @@ class Playfield:
 		geometry.drop(self.grid, lines)
 		score, message = geometry.score(lines)
 		self.score += score
-		print(self.score)
+		if geometry.collide(self.shape, self.grid, 0, 0):
+			print("Game Over, your score was {0} pts!".format(self.score))
+			quit()
 	
 	def shape_tick(self):
 		self.shape.y += 1

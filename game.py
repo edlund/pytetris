@@ -24,7 +24,7 @@ class Game:
 		self.grid_surface = pygame.Surface((10 * self.block_size, 20 * self.block_size))
 		self.next_shape_surface = pygame.Surface((4 * self.block_size, 4 * self.block_size))
 
-		self.step_intervall = 1000 # in ms
+		self.step_intervall = 1070 # in ms
 		self.step_clock = 0
 
 		self.event_handlers = []
@@ -83,7 +83,7 @@ class Game:
 		quit()
 
 	def tick(self):
-		if self.step_clock >= self.step_intervall:
+		if self.step_clock >= (self.step_intervall - self.playfield.level * 70):
 			self.step_clock = 0
 			if geometry.collide(self.playfield.shape, self.playfield.grid, 0, 1):
 				self.playfield.shape_land()
@@ -119,6 +119,8 @@ class Playfield:
 		self.shape = self.factory.spawn(self.factory.width)
 		self.next_shape = self.factory.spawn(self.factory.width)
 		self.score = 0
+		self.level = 1
+		self.level_clears = 0
 
 	def shape_land(self):
 		geometry.freeze(self.shape, self.grid)
@@ -128,9 +130,15 @@ class Playfield:
 		geometry.drop(self.grid, lines)
 		score, message = geometry.score(lines)
 		self.score += score
+		self.level_clears += len(lines)
 		if geometry.collide(self.shape, self.grid, 0, 0):
 			print("Game Over, your score was {0} pts!".format(self.score))
 			quit()
+
+		if self.level_clears >= 10:
+			self.level += 1
+			self.level_clears = 0
+			print("Level up! Level: {0}".format(self.level))
 	
 	def shape_tick(self):
 		self.shape.y += 1

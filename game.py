@@ -118,7 +118,14 @@ class Game:
 			1,
 			(10, 10, 10)
 		)
+		text2 = self.font.render(
+			"Level: {0}".format(self.playfield.level),
+			1,
+			(10, 10, 10)
+		)
+
 		self.screen_surf.blit(text, (400, 250))
+		self.screen_surf.blit(text2, (400, 270))
 		
 		pygame.display.update()
 

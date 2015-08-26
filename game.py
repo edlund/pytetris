@@ -10,6 +10,7 @@ class Game:
 		pygame.init()
 
 		pygame.display.init()
+		pygame.display.set_caption('PyTetris')
 		self.screen_surf = pygame.display.set_mode(size)
 		
 		self.done = False
@@ -22,7 +23,7 @@ class Game:
 		self.block_size = self.playfield.factory.block_size
 		self.grid_renderer = graphics.GridRenderer(self.block_size)
 		self.grid_surface = pygame.Surface((10 * self.block_size, 20 * self.block_size))
-		self.next_shape_surface = pygame.Surface((4 * self.block_size, 4 * self.block_size))
+		self.next_shape_surface = pygame.Surface((5 * self.block_size, 5 * self.block_size))
 
 		self.step_intervall = 1070 # in ms
 		self.step_clock = 0
@@ -30,6 +31,8 @@ class Game:
 		self.event_handlers = []
 
 		self.set_callbacks()
+		
+		self.font = pygame.font.Font(None, 32)
 
 
 	def set_callbacks(self):
@@ -101,11 +104,22 @@ class Game:
 		self.grid_renderer.draw_shape(self.grid_surface, self.playfield.shape)
 		self.grid_renderer.draw(self.grid_surface, self.playfield.grid)
 		self.grid_renderer.draw_shape(self.next_shape_surface,
-			self.playfield.next_shape, 0, 0)
-
+			self.playfield.next_shape, 0, 0,
+			self.next_shape_surface.get_rect().centerx
+				- self.block_size * self.playfield.next_shape.side / 2,
+			self.next_shape_surface.get_rect().centery
+				- self.block_size * self.playfield.next_shape.side / 2)
+		
 		self.screen_surf.blit(self.grid_surface, self.field_pos)
 		self.screen_surf.blit(self.next_shape_surface, (400, 50))
-
+		
+		text = self.font.render(
+			"Score: {0}".format(self.playfield.score),
+			1,
+			(10, 10, 10)
+		)
+		self.screen_surf.blit(text, (400, 250))
+		
 		pygame.display.update()
 
 	def quit(self):

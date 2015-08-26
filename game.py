@@ -17,7 +17,7 @@ class Game:
 
 		self.clock = pygame.time.Clock()
 
-		self.playfield = Playfield("config.json")
+		self.playfield = Playfield("resources/config.json")
 		self.field_pos = (50, 50)
 
 		self.block_size = self.playfield.factory.block_size
@@ -32,7 +32,10 @@ class Game:
 
 		self.set_callbacks()
 		
-		self.font = pygame.font.Font(None, 32)
+		self.font = pygame.font.Font(
+			"resources/fonts/hack/Hack-Regular.ttf",
+			22
+		)
 
 
 	def set_callbacks(self):

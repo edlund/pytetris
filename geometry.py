@@ -385,7 +385,7 @@ if __name__ == '__main__':
 			gr = Grid(w, h)
 			gr.assign_cells(playfield, '#f0f0f0')
 			
-			f = Factory("./config.json")
+			f = Factory("resources/config.json")
 			T = f.find('T')
 			T.x = 2
 			T.y = 7
@@ -413,7 +413,7 @@ if __name__ == '__main__':
 			gr = Grid(w, h)
 			gr.assign_cells(playfield, '#f0f0f0')
 			
-			f = Factory("./config.json")
+			f = Factory("resources/config.json")
 			T = f.find('T')
 			
 			# Place the shape above the "landed" T, move it down once.
@@ -457,7 +457,7 @@ if __name__ == '__main__':
 	class TestShape(unittest.TestCase):
 		
 		def test__rcw90(self):
-			f = Factory("./config.json")
+			f = Factory("resources/config.json")
 			
 			Z = f.find('Z')
 			self.assertTrue(Z.rotation(Shape.R_000).compare_cells([
@@ -496,7 +496,7 @@ if __name__ == '__main__':
 			]))
 		
 		def test_rotate(self):
-			f = Factory("./config.json")
+			f = Factory("resources/config.json")
 			Z = f.find('Z')
 			
 			Z.rotate_cw()
@@ -523,7 +523,7 @@ if __name__ == '__main__':
 	class TestFactory(unittest.TestCase):
 		
 		def test_find(self):
-			f = Factory("./config.json")
+			f = Factory("resources/config.json")
 			Z = f.find('Z')
 			T = f.find('T')
 			I = f.find('I')
@@ -534,7 +534,7 @@ if __name__ == '__main__':
 		
 		def test_spawn(self):
 			w = 10
-			f = Factory("./config.json")
+			f = Factory("resources/config.json")
 			s = f.spawn(w)
 			self.assertEqual(s.uid, 1)
 			self.assertTrue(s.x >= 0 and s.x < w - s.side)

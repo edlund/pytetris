@@ -142,6 +142,7 @@ class Playfield:
 		self.grid = geometry.Grid(self.factory.width, self.factory.height)
 		self.shape = self.factory.spawn(self.factory.width)
 		self.next_shape = self.factory.spawn(self.factory.width)
+		self.scorefn = geometry.score
 		self.score = 0
 		self.level = 1
 		self.level_clears = 0
@@ -152,7 +153,7 @@ class Playfield:
 		self.next_shape = self.factory.spawn(self.factory.width)
 		lines = geometry.clear(self.grid)
 		geometry.drop(self.grid, lines)
-		score, message = geometry.score(lines)
+		score, message = self.scorefn(lines, self.level)
 		self.score += score
 		self.level_clears += len(lines)
 		if geometry.collide(self.shape, self.grid, 0, 0):

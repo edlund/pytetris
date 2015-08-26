@@ -12,10 +12,10 @@ def _swap(l, i, j):
 	# Helper to make list swaps less verbose.
 	l[i], l[j] = l[j], l[i]
 
-def score(clrs):
+def score(clrs, level):
 	mult = len(clrs)
-	base = 1000
-	points = mult * base
+	base = 10
+	points = mult * base * level
 	return (
 		points,
 		"{0}x line clear".format(mult)
@@ -280,7 +280,7 @@ if __name__ == '__main__':
 		
 		def test_score(self):
 			clrs = [6, 7, 8, 9]
-			pts, msg = score(clrs)
+			pts, msg = score(clrs, 1)
 			self.assertEqual(pts, 4000)
 			self.assertEqual(msg, "4x line clear")
 		

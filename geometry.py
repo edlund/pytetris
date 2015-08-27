@@ -257,7 +257,9 @@ class Factory:
 	def find(self, name):
 		return next(s for s in self.shapes if s.desc['name'] == name)
 	
-	def spawn(self, w=0):
+	def spawn(self, w=None):
+		if w == None:
+			w = self.width
 		self.nextuid += 1
 		s = copy.deepcopy(random.choice(self.shapes))
 		s.assign_uid(self.nextuid)
@@ -281,7 +283,7 @@ if __name__ == '__main__':
 		def test_score(self):
 			clrs = [6, 7, 8, 9]
 			pts, msg = score(clrs, 1)
-			self.assertEqual(pts, 4000)
+			self.assertEqual(pts, 40)
 			self.assertEqual(msg, "4x line clear")
 		
 		def test_drop(self):

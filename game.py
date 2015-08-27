@@ -150,7 +150,7 @@ class Playfield:
 	def shape_land(self):
 		geometry.freeze(self.shape, self.grid)
 		self.shape = self.next_shape
-		self.next_shape = self.factory.spawn(self.factory.width)
+		self.next_shape = self.factory.spawn()
 		lines = geometry.clear(self.grid)
 		geometry.drop(self.grid, lines)
 		score, message = self.scorefn(lines, self.level)
